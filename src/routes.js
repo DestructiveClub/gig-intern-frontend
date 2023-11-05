@@ -5,13 +5,8 @@ import MainDashboard from "views/admin/default";
 import Courses from "views/admin/courses";
 import Profile from "views/admin/profile";
 
-
 // Icon Imports
-import {
-  MdHome,
-  MdPerson,
-  MdBook,
-} from "react-icons/md";
+import { MdHome, MdPerson, MdBook } from "react-icons/md";
 
 const routes = [
   {
@@ -36,6 +31,5 @@ const routes = [
     icon: <MdPerson className="h-6 w-6" />,
     component: <Profile />,
   },
-
 ];
 export default routes;
