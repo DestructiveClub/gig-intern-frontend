@@ -1,121 +1,41 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import sideImg from "../../assets/sign.png";
-
-import { loadGapiInsideDOM, loadAuth2 } from 'gapi-script';
-
-import { FcGoogle } from "react-icons/fc";
+import Input from "components/fields/Input";
+import GoogleAuthButton from 'components/GoogleAuthButton';
+import { useCustomStates } from 'components/UseStates';
 
 function SignIn () {
+  const {
+    formData,
+    handleFormValueChange
+  } = useCustomStates();
 
-  const [ emailFocus, setEmailFocus ] = useState(false);
-  const [ passwordFocus, setPasswordFocus ] = useState(false);
-  const [ email, setEmailValue ] = useState('');
-  const [ password, setPasswordValue ] = useState('');
+  // const [ emailFocus, setEmailFocus ] = useState(false);
+  // const [ passwordFocus, setPasswordFocus ] = useState(false);
+  // const [ email, setEmailValue ] = useState('');
+  // const [ password, setPasswordValue ] = useState('');
 
-  const [ gapi, setGapi ] = useState(null);
-  const [ user, setUser ] = useState(null);
-
-  useEffect(() => {
-    const loadGapi = async () => {
-      const newGapi = await loadGapiInsideDOM();
-      setGapi(newGapi);
-    };
-    loadGapi();
-  }, []);
-
-  const attachSignin = useCallback((element, auth2) => {
-    auth2.attachClickHandler(element, {},
-      (googleUser) => {
-        updateUser(googleUser);
-      }, (error) => {
-        console.log(JSON.stringify(error));
-      });
-  }, []);
-
-  useEffect(() => {
-    if (!gapi) return;
-
-    const setAuth2 = async () => {
-      const auth2 = await loadAuth2(gapi, process.env.REACT_APP_CLIENT_KEY, '');
-      if (auth2.isSignedIn.get()) {
-        updateUser(auth2.currentUser.get());
-      } else {
-        attachSignin(document.getElementById('customBtn'), auth2);
-      }
-    };
-    setAuth2();
-  }, [ attachSignin, gapi ]);
-
-  useEffect(() => {
-    if (!gapi) return;
-
-    if (!user) {
-      const setAuth2 = async () => {
-        const auth2 = await loadAuth2(gapi, process.env.REACT_APP_CLIENT_ID, '');
-        attachSignin(document.getElementById('customBtn'), auth2);
-      };
-      setAuth2();
-    }
-  }, [ user, gapi, attachSignin ]);
-
-  const updateUser = (currentUser) => {
-    const name = currentUser.getBasicProfile().getName();
-    const profileImg = currentUser.getBasicProfile().getImageUrl();
-    setUser({
-      name: name,
-      profileImg: profileImg,
-    });
-  };
-
-
-  const signOut = () => {
-    const auth2 = gapi.auth2.getAuthInstance();
-    auth2.signOut().then(() => {
-      setUser(null);
-      console.log('User signed out.');
-    });
-  };
-
-  const handleEmailFocus = () => {
-    setEmailFocus(true);
-  };
-
-  const handleEmailBlur = () => {
-    setEmailFocus(false);
-  };
-
-  const handlePasswordFocus = () => {
-    setPasswordFocus(true);
-  };
-
-  const handlePasswordBlur = () => {
-    setPasswordFocus(false);
-  };
-
-  const handleEmailChange = (e) => {
-    setEmailValue(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPasswordValue(e.target.value);
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Your form submission logic here
+    console.log(formData);
   };
+
+
+
+  const classStyle = "sm:text-base text-xs";
 
   return (
     <div className='flex justify-center bg-white'>
-      <div className='items-end justify-center hidden p-10 md:flex' style={ {
+      <div className='items-end justify-center hidden p-10 md:flex ' style={ {
         backgroundImage: `url(${sideImg})`,
         backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
         width: 50 + '%',
         height: 100 + 'vh'
       } }>
-        <div className='w-[75%]'>
-          <h1 className="text-4xl font-bold text-slate-50">Discover, Learn and Build yours skills while you take on free Courses</h1>
+        <div className='w-[75%] '>
+          <h1 className="text-4xl font-bold text-white ">Discover, Learn and Build yours skills while you take on free Courses</h1>
         </div>
       </div>
       <div className='py-14 px-10 md:w-[50%] w-[100%]'>
@@ -127,56 +47,37 @@ function SignIn () {
           <div className='mt-2'>
             <form onSubmit={ handleSubmit } className="py-8 ">
               <div className={ `relative` }>
-                <input
-                  type="text"
-                  value={ email }
-                  onChange={ handleEmailChange }
-                  className={ `w-full h-10 px-3 py-3 border rounded-lg text-gray-800 focus:outline-none focus:border-[#29ABFF] ${emailFocus ? 'border-[#29ABFF]' : 'border-gray-300'
-                    }` }
-                  onFocus={ handleEmailFocus }
-                  onBlur={ handleEmailBlur }
-                />
-                <label
-                  className={ `absolute left-3 top-2 text-gray-600 transition-all ${email || email.length >= 0
-                    ? 'bg-white px-2 text-xs -top-[12px] focus:text-blue-600'
-                    : 'text-base text-blue-600'
-                    }` }
-                >
-                  Email
-                </label>
+                <Input
+                  type="email"
+                  name="email"
+                  value={ formData.email }
+                  onChange={ handleFormValueChange }
+                  inputField="Email"
+                  className={ classStyle } />
+
               </div>
 
               <div className={ `relative my-6` }>
-                <input
+                <Input
                   type="password"
-                  value={ password }
-                  onChange={ handlePasswordChange }
-                  className={ `w-full h-10 px-3 py-3 border rounded-lg text-gray-800 focus:outline-none focus:border-[#29ABFF] ${passwordFocus ? 'border-[#29ABFF]' : 'border-gray-300'
-                    }` }
-                  onFocus={ handlePasswordFocus }
-                  onBlur={ handlePasswordBlur }
-                  placeholder='***********'
-                />
-                <label
-                  className={ `absolute left-3 top-2 text-gray-600 transition-all ${password || password.length > 0
-                    ? 'bg-white px-2 text-xs -top-[12px] text-blue-600'
-                    : 'text-base text-blue-600'
-                    }` }
-                >
-                  Password
-                </label>
+                  name="password"
+                  value={ formData.password }
+                  onChange={ handleFormValueChange }
+                  inputField="Password"
+                  className={ classStyle } />
+
               </div>
               <div className='flex items-center justify-between'>
                 <label className='flex items-center justify-between'>
-                  <input type="checkbox" name="" id="" className='accent-blue-500' />
+                  <input type="checkbox" name="" id="" className='accent-blue-400' />
                   <span className="pl-2 text-black text-opacity-70 text-[15px] font-normal">Keep me logged in</span>
                 </label>
-                <a href="http://accounts.google.com/signup" className="text-blue-600 text-[15px] font-normal leading-tight">Forgot Password?</a>
+                <a href="http://accounts.google.com/signup" className="text-blue-400 text-[15px] font-normal leading-tight">Forgot Password?</a>
               </div>
 
               <button
                 type="submit"
-                className="mt-10 w-full h-12 bg-[#1E5DFF] text-white rounded-lg hover:bg-black transition duration-200 ease-linear focus:outline-none"
+                className="w-full h-12 mt-10 text-white transition duration-200 ease-linear bg-blue-400 rounded-lg hover:bg-black focus:outline-none"
               >
                 Sign In
               </button>
@@ -188,18 +89,14 @@ function SignIn () {
             </div>
             {/* <GoogleLogin /> */ }
 
-            <button id="customBtn" className="rounded-[4px]  py-2 flex justify-center border-[1px] border-[#dadce0] hover:border-sky-200  hover:bg-sky-100 w-full cursor-pointer">
-              <p className="text-[#3c4043] text-[14px] flex gap-1 justify-center"><span className="w-[40px] text-2xl"><FcGoogle /></span>Sign in with Google</p>
-            </button>
-
+            <GoogleAuthButton type="button" id="google-signin-btn" text="Continue with Google" />
             <div className="mt-10 text-center">
-              <span className="text-sm font-normal text-black text-opacity-60">Not registered? </span>
-              <a href="https://accounts.google.com/signup" className="text-blue-600 text-sm font-normal leading-[19.20px]">Create an Account</a></div>
+              <div className="g-signin2" data-onsuccess="onSignIn"></div>              <a href="/signup" className="text-blue-600 text-sm font-normal leading-[19.20px]">Create an Account</a></div>
           </div>
         </div>
-      </div>
+      </div >
 
-    </div>
+    </div >
   );
 }
 
